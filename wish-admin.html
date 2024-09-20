@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raffle Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #adminPanel {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Raffle Admin</h1>
+    <div id="loginForm">
+        <form id="login">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    <div id="twoFAForm" style="display: none;">
+        <form id="verify2FA">
+            <input type="text" id="totpToken" placeholder="Enter 2FA Code" required>
+            <button type="submit">Verify 2FA</button>
+        </form>
+    </div>
+    <div id="adminPanel">
+        <h2>Admin Panel</h2>
+        <button id="drawWinnerBtn">Draw Winner</button>
+        <button id="exportCSVBtn">Export CSV</button>
+        <div id="winnerDisplay"></div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
