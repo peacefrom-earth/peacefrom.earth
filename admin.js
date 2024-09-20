@@ -1,3 +1,5 @@
+const SERVER_URL = 'http://localhost:3000'; // Adjust this if your server is running on a different port
+
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('login');
     const twoFAForm = document.getElementById('verify2FA');
@@ -5,8 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const drawWinnerBtn = document.getElementById('drawWinnerBtn');
     const exportCSVBtn = document.getElementById('exportCSVBtn');
     const winnerDisplay = document.getElementById('winnerDisplay');
-
-    const SERVER_URL = 'http://localhost:3000'; // Adjust this if your server is running on a different port
 
     loginForm.addEventListener('submit', async function(event) {
         event.preventDefault();

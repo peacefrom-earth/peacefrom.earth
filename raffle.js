@@ -1,62 +1,57 @@
 // Wait for the DOM to be fully loaded before running the script
-// Restrict participants to email addresses only
 document.addEventListener('DOMContentLoaded', function() {
-    // Function to create a participant entry form and pick winner button
-    function createParticipantFormAndPickWinnerButton() {
+    // Function to create a participant entry form
+    function createParticipantForm() {
         const container = document.getElementById('raffle-container');
         
         // Create form elements
         const form = document.createElement('form');
-        const nameInput = document.createElement('input');
-        const submitButton = document.createElement('button');
-        const pickWinnerButton = document.createElement('button');
+        const emailInput = document.createElement('input');
         const wishInput = document.createElement('input');
+        const submitButton = document.createElement('button');
 
-        // Change input type to email and update placeholder
-        nameInput.type = 'email';
-        nameInput.id = 'participantEmail';
-        nameInput.placeholder = 'Enter participant email';
-        nameInput.required = true;
+        // Set attributes for email input
+        emailInput.type = 'email';
+        emailInput.id = 'participantEmail';
+        emailInput.placeholder = 'Enter your email';
+        emailInput.required = true;
+
+        // Set attributes for wish input
+        wishInput.type = 'text';
+        wishInput.id = 'participantWish';
+        wishInput.placeholder = 'Enter your wish';
+        wishInput.required = true;
 
         // Set attributes for submit button
         submitButton.type = 'submit';
-        submitButton.textContent = 'Add Participant';
-
-        // Set attributes for pick winner button
-        pickWinnerButton.type = 'button';
-        pickWinnerButton.textContent = 'Pick Winner';
-        pickWinnerButton.addEventListener('click', function() {
-            const winner = drawWinner();
-            if (winner) {
-                const [email, wish] = winner;
-                console.log(`The winner is: ${email} with the wish: ${wish}`);
-                alert(`The winner is: ${email}\nTheir wish: ${wish}`);
-            } else {
-                console.log("No participants in the raffle.");
-                alert("No participants in the raffle.");
-            }
-        });
+        submitButton.textContent = 'Enter Raffle';
 
         // Append elements to form
-        form.appendChild(nameInput);
+        form.appendChild(emailInput);
         form.appendChild(wishInput);
         form.appendChild(submitButton);
-        form.appendChild(pickWinnerButton);
 
         // Add form to the container
         container.appendChild(form);
 
-        // Update form submission event listener
-        form.addEventListener('submit', function(event) {
+        // Add form submission event listener
+        form.addEventListener('submit', async function(event) {
             event.preventDefault();
-            const email = nameInput.value.trim();
+            const email = emailInput.value.trim();
             const wish = wishInput.value.trim();
-            if (email && wish && emailRepo.isValidEmail(email)) {
-                if (addParticipant(email, wish)) {
-                    nameInput.value = '';
-                    wishInput.value = '';
-                } else {
-                    alert('This email has already been entered.');
+            if (email && wish) {
+                try {
+                    const result = await addEntry(email, wish);
+                    if (result.message === 'Entry added successfully') {
+                        emailInput.value = '';
+                        wishInput.value = '';
+                        alert('You have been entered into the raffle!');
+                    } else {
+                        alert('Failed to add entry. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error adding entry:', error);
+                    alert('An error occurred. Please try again.');
                 }
             } else {
                 alert('Please enter a valid email address and make a wish.');
@@ -64,71 +59,57 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Call the function to create the form and pick winner button
-    createParticipantFormAndPickWinnerButton();
+    // Call the function to create the form
+    createParticipantForm();
 
-    // Add this class at the beginning of your file
-    class EmailRepository {
-        constructor() {
-            this.participants = new Map();
-        }
-
-        add(email, wish) {
-            email = email.toLowerCase();
-            if (this.isValidEmail(email)) {
-                if (this.participants.has(email)) {
-                    return false; // Email already exists
-                }
-                this.participants.set(email, wish);
-                return true;
-            }
-            return false;
-        }
-
-        remove(email) {
-            return this.participants.delete(email.toLowerCase());
-        }
-
-        getAll() {
-            return Array.from(this.participants.entries());
-        }
-
-        isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
-    }
-
-    // Replace the participants array with EmailRepository
-    const emailRepo = new EmailRepository();
-
-    // Update addParticipant function
-    function addParticipant(email, wish) {
-        if (emailRepo.add(email, wish)) {
-            console.log(`${email} has been added to the raffle with the wish: ${wish}`);
-            return true;
-        } else {
-            console.log(`Failed to add ${email} to the raffle.`);
-            return false;
-        }
-    }
-
-    // Update removeParticipant function
-    function removeParticipant(email) {
-        if (emailRepo.remove(email.toLowerCase())) {
-            console.log(`${email} has been removed from the raffle.`);
-        } else {
-            console.log(`${email} is not in the raffle.`);
-        }
-    }
-
-    // Update drawWinner function
-    function drawWinner() {
-        const participants = emailRepo.getAll();
-        if (participants.length === 0) {
-            return null;
-        }
-        const winnerIndex = Math.floor(Math.random() * participants.length);
-        return participants[winnerIndex];
-    }
+    console.log("Raffle system initialized.");
 });
+
+async function login(username, password) {
+    const response = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    });
+    return response.json();
+}
+
+async function verify2FA(token) {
+    const response = await fetch('/verify-2fa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+    });
+    return response.json();
+}
+
+async function addEntry(email, wish) {
+    const response = await fetch('/add-entry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, wish })
+    });
+    return response.json();
+}
+
+async function drawWinner() {
+    const response = await fetch('/draw-winner');
+    return response.json();
+}
+
+async function exportCSV() {
+    const response = await fetch('/export-csv');
+    if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'raffle_entries.csv';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    } else {
+        console.error('Failed to export CSV');
+    }
+}
