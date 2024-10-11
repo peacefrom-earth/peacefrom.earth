@@ -1,3 +1,6 @@
+// Base URL for the API
+const BASE_URL = 'https://peacefrom.earth';
+
 // Wait for the DOM to be fully loaded before running the script
 document.addEventListener('DOMContentLoaded', function() {
     // Function to create a participant entry form
@@ -65,8 +68,9 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("Raffle system initialized.");
 });
 
+// Fetch functions for API calls
 async function login(username, password) {
-    const response = await fetch('/login', {
+    const response = await fetch(`${BASE_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -75,7 +79,7 @@ async function login(username, password) {
 }
 
 async function verify2FA(token) {
-    const response = await fetch('/verify-2fa', {
+    const response = await fetch(`${BASE_URL}/verify-2fa`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token })
@@ -84,7 +88,7 @@ async function verify2FA(token) {
 }
 
 async function addEntry(email, wish) {
-    const response = await fetch('/add-entry', {
+    const response = await fetch(`${BASE_URL}/add-entry`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, wish })
@@ -93,12 +97,12 @@ async function addEntry(email, wish) {
 }
 
 async function drawWinner() {
-    const response = await fetch('/draw-winner');
+    const response = await fetch(`${BASE_URL}/draw-winner`);
     return response.json();
 }
 
 async function exportCSV() {
-    const response = await fetch('/export-csv');
+    const response = await fetch(`${BASE_URL}/export-csv`);
     if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
