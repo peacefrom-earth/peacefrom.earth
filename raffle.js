@@ -1,5 +1,5 @@
 // Base URL for the API
-const BASE_URL = 'https://peacefrom.earth';
+const BASE_URL = 'https://peacefrom.earth/wish_append.html';
 
 // Wait for the DOM to be fully loaded before running the script
 document.addEventListener('DOMContentLoaded', function() {
