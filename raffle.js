@@ -1,5 +1,5 @@
 // Base URL for the API
-const BASE_URL = 'https://we-wish.peacefrom.earth/';
+const BASE_URL = 'https://wish-clow-production.up.railway.app';
 
 // Wait for the DOM to be fully loaded before running the script
 document.addEventListener('DOMContentLoaded', function() {
