@@ -69,24 +69,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Fetch functions for API calls
-async function login(username, password) {
-    const response = await fetch(`${BASE_URL}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-    });
-    return response.json();
-}
-
-async function verify2FA(token) {
-    const response = await fetch(`${BASE_URL}/verify-2fa`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token })
-    });
-    return response.json();
-}
-
 async function addEntry(email, wish) {
     const response = await fetch(`${BASE_URL}/add-entry`, {
         method: 'POST',
