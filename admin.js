@@ -1,11 +1,30 @@
-const SERVER_URL = 'https://wish-clow-production.up.railway.app'; // Adjust this if your server is running on a different port
+const SERVER_URL = 'http://localhost:3000'; // Adjust this if your server is running on a different port
 
 document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('login');
     const twoFAForm = document.getElementById('verify2FA');
     const adminPanel = document.getElementById('adminPanel');
     const drawWinnerBtn = document.getElementById('drawWinnerBtn');
     const exportCSVBtn = document.getElementById('exportCSVBtn');
     const winnerDisplay = document.getElementById('winnerDisplay');
+
+    loginForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        try {
+            const result = await login(username, password);
+            if (result.message === 'Login successful, please enter 2FA code') {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('twoFAForm').style.display = 'block';
+            } else {
+                alert('Login failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('An error occurred during login. Please try again.');
+        }
+    });
 
     twoFAForm.addEventListener('submit', async function(event) {
         event.preventDefault();
@@ -48,8 +67,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+async function login(username, password) {
+    const response = await fetch(`${SERVER_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    });
+    return response.json();
+}
+
 async function verify2FA(token) {
-    const response = await fetch(`${SERVER_URL}/verify-2fa`, {
+    const response = await fetch('/verify-2fa', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token })
@@ -58,12 +86,12 @@ async function verify2FA(token) {
 }
 
 async function drawWinner() {
-    const response = await fetch(`${SERVER_URL}/draw-winner`);
+    const response = await fetch('/draw-winner');
     return response.json();
 }
 
 async function exportCSV() {
-    const response = await fetch(`${SERVER_URL}/export-csv`);
+    const response = await fetch('/export-csv');
     if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
