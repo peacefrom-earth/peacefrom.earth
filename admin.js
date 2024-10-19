@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const drawWinnerBtn = document.getElementById('drawWinnerBtn');
     const exportCSVBtn = document.getElementById('exportCSVBtn');
     const winnerDisplay = document.getElementById('winnerDisplay');
+    const qrCodeContainer = document.getElementById('qrCodeContainer');
 
     loginForm.addEventListener('submit', async function(event) {
         event.preventDefault();
@@ -16,6 +17,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await login(username, password);
             if (result.message === 'Login successful, please enter 2FA code') {
                 document.getElementById('loginForm').style.display = 'none';
+                // Request 2FA setup and display QR code
+                const setupResult = await setup2FA();
+                if (setupResult.qrCodeUrl) {
+                    document.getElementById('qrCodeImage').src = setupResult.qrCodeUrl;
+                    qrCodeContainer.style.display = 'block';
+                }
                 document.getElementById('twoFAForm').style.display = 'block';
             } else {
                 alert('Login failed. Please try again.');
@@ -33,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await verify2FA(token);
             if (result.message === '2FA verified') {
                 document.getElementById('twoFAForm').style.display = 'none';
+                qrCodeContainer.style.display = 'none';
                 adminPanel.style.display = 'block';
             } else {
                 alert('2FA verification failed. Please try again.');
@@ -42,6 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('An error occurred during 2FA verification. Please try again.');
         }
     });
+
 
     drawWinnerBtn.addEventListener('click', async function() {
         try {
@@ -76,8 +85,16 @@ async function login(username, password) {
     return response.json();
 }
 
+async function setup2FA() {
+    const response = await fetch(`${SERVER_URL}/setup-2fa`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+    });
+    return response.json();
+}
+
 async function verify2FA(token) {
-    const response = await fetch('/verify-2fa', {
+    const response = await fetch(`${SERVER_URL}/verify-2fa`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token })
