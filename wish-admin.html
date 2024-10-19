@@ -44,6 +44,9 @@
             color: red;
             margin-top: 10px;
         }
+         #setup2FABtn {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -55,8 +58,9 @@
             <button type="submit">Login</button>
         </form>
     </div>
-    <div id="twoFAContainer" class="container">
-        <div id="qrCodeContainer">
+    <div id="twoFAContainer" class="container" style="display: none;">
+        <button id="setup2FABtn">Set up 2FA</button>
+        <div id="qrCodeContainer" style="display: none;">
             <h3>Scan this QR code with your 2FA app</h3>
             <img id="qrCodeImage" src="" alt="2FA QR Code">
             <p>After scanning, enter the code from your 2FA app below.</p>
@@ -66,7 +70,7 @@
             <button type="submit">Verify 2FA</button>
         </form>
     </div>
-    <div id="adminPanel">
+    <div id="adminPanel" style="display: none;">
         <h2>Admin Panel</h2>
         <button id="drawWinnerBtn">Draw Winner</button>
         <button id="exportCSVBtn">Export CSV</button>
