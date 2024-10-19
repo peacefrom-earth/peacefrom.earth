@@ -3,6 +3,8 @@ const SERVER_URL = 'https://wish-clow-production.up.railway.app';
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('login');
     const twoFAContainer = document.getElementById('twoFAContainer');
+    const setup2FABtn = document.getElementById('setup2FABtn');
+    const qrCodeContainer = document.getElementById('qrCodeContainer');
     const verify2FAForm = document.getElementById('verify2FA');
     const adminPanel = document.getElementById('adminPanel');
     const drawWinnerBtn = document.getElementById('drawWinnerBtn');
@@ -34,9 +36,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await login(username, password);
             console.log('Login result:', result);
             if (result.message === 'Login successful, please enter 2FA code') {
-                if (loginForm) loginForm.style.display = 'none';
-                if (twoFAContainer) twoFAContainer.style.display = 'block';
-                // We'll set up 2FA after successful login verification
+                loginForm.style.display = 'none';
+                twoFAContainer.style.display = 'block';
             } else {
                 console.error('Login failed:', result.message);
                 displayError('Login failed. Please try again.');
@@ -47,6 +48,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    setup2FABtn.addEventListener('click', async function() {
+        clearError();
+        try {
+            console.log('Requesting 2FA setup...');
+            const setupResult = await setup2FA();
+            console.log('2FA setup result:', setupResult);
+            if (setupResult.qrCodeUrl) {
+                console.log('QR Code URL received:', setupResult.qrCodeUrl);
+                document.getElementById('qrCodeImage').src = setupResult.qrCodeUrl;
+                qrCodeContainer.style.display = 'block';
+                setup2FABtn.style.display = 'none';
+            } else {
+                console.error('No QR Code URL in setup result');
+                displayError('Failed to get QR Code. Please try again.');
+            }
+        } catch (error) {
+            console.error('2FA setup error:', error);
+            displayError('An error occurred during 2FA setup. Please try again.');
+        }
+    });
+
     verify2FAForm.addEventListener('submit', async function(event) {
         event.preventDefault();
         clearError();
@@ -54,8 +76,8 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const result = await verify2FA(token);
             if (result.message === '2FA verified') {
-                if (twoFAContainer) twoFAContainer.style.display = 'none';
-                if (adminPanel) adminPanel.style.display = 'block';
+                twoFAContainer.style.display = 'none';
+                adminPanel.style.display = 'block';
             } else {
                 displayError('2FA verification failed. Please try again.');
             }
@@ -64,8 +86,6 @@ document.addEventListener('DOMContentLoaded', function() {
             displayError('An error occurred during 2FA verification. Please try again.');
         }
     });
-
-
 
     drawWinnerBtn.addEventListener('click', async function() {
         try {
