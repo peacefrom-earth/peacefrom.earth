@@ -33,6 +33,14 @@
         #adminPanel {
             display: none;
         }
+        #qrCodeContainer {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #qrCodeContainer img {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 </head>
 <body>
@@ -50,13 +58,17 @@
             <button type="submit">Verify 2FA</button>
         </form>
     </div>
+    <div id="qrCodeContainer" style="display: none;">
+        <h3>Scan this QR code with your 2FA app</h3>
+        <img id="qrCodeImage" src="" alt="2FA QR Code">
+        <p>After scanning, enter the code from your 2FA app above.</p>
+    </div>
     <div id="adminPanel">
         <h2>Admin Panel</h2>
         <button id="drawWinnerBtn">Draw Winner</button>
         <button id="exportCSVBtn">Export CSV</button>
         <div id="winnerDisplay"></div>
     </div>
-
     <script src="admin.js"></script>
 </body>
 </html>
