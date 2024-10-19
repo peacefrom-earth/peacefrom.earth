@@ -38,6 +38,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (result.message === 'Login successful, please enter 2FA code') {
                 loginForm.style.display = 'none';
                 twoFAContainer.style.display = 'block';
+                // Check session after login
+                await checkSession();
             } else {
                 console.error('Login failed:', result.message);
                 displayError('Login failed. Please try again.');
@@ -123,6 +125,21 @@ async function login(username, password) {
     return response.json();
 }
 
+async function checkSession() {
+    const response = await fetch(`${SERVER_URL}/session`, {
+        method: 'GET',
+        credentials: 'include' // Important for sending cookies
+    });
+    const result = await response.json();
+    console.log('Session check result:', result);
+    if (response.ok) {
+        // Optionally handle session data here
+        console.log('User is logged in:', result.user);
+    } else {
+        console.error('Session check failed:', result.message);
+    }
+}
+
 async function setup2FA() {
     console.log('Sending 2FA setup request to:', `${SERVER_URL}/setup-2fa`);
     const response = await fetch(`${SERVER_URL}/setup-2fa`, {
@@ -147,12 +164,18 @@ async function verify2FA(token) {
 }
 
 async function drawWinner() {
-    const response = await fetch('/draw-winner');
+    const response = await fetch('/draw-winner', {
+        method: 'GET',
+        credentials: 'include' // Important for sending cookies
+    });
     return response.json();
 }
 
 async function exportCSV() {
-    const response = await fetch('/export-csv');
+    const response = await fetch('/export-csv', {
+        method: 'GET',
+        credentials: 'include' // Important for sending cookies
+    });
     if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
