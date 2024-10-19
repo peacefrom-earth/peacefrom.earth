@@ -26,6 +26,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Function to retrieve the session cookie
+    function getSessionCookie() {
+        const cookies = document.cookie.split('; ');
+        for (let cookie of cookies) {
+            if (cookie.startsWith('connect.sid=')) { // Replace with your actual cookie name
+                return cookie.split('=')[1]; // Return the cookie value
+            }
+        }
+        return null; // Return null if the cookie is not found
+    }
+
+    // Example usage of the getSessionCookie function
+    const sessionCookie = getSessionCookie();
+    console.log('Session Cookie:', sessionCookie);
+
     loginForm.addEventListener('submit', async function(event) {
         event.preventDefault();
         clearError();
