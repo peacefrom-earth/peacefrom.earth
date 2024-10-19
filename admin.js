@@ -11,11 +11,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const errorMessageElement = document.getElementById('errorMessage');
 
     function displayError(message) {
-        errorMessageElement.textContent = message;
+        if (errorMessageElement) {
+            errorMessageElement.textContent = message;
+        } else {
+            console.error('Error:', message);
+        }
     }
 
     function clearError() {
-        errorMessageElement.textContent = '';
+        if (errorMessageElement) {
+            errorMessageElement.textContent = '';
+        }
     }
 
     loginForm.addEventListener('submit', async function(event) {
@@ -28,18 +34,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await login(username, password);
             console.log('Login result:', result);
             if (result.message === 'Login successful, please enter 2FA code') {
-                document.getElementById('loginForm').style.display = 'none';
-                console.log('Requesting 2FA setup...');
-                const setupResult = await setup2FA();
-                console.log('2FA setup result:', setupResult);
-                if (setupResult.qrCodeUrl) {
-                    console.log('QR Code URL received:', setupResult.qrCodeUrl);
-                    document.getElementById('qrCodeImage').src = setupResult.qrCodeUrl;
-                    twoFAContainer.style.display = 'block';
-                } else {
-                    console.error('No QR Code URL in setup result');
-                    displayError('Failed to get QR Code. Please try again.');
-                }
+                if (loginForm) loginForm.style.display = 'none';
+                if (twoFAContainer) twoFAContainer.style.display = 'block';
+                // We'll set up 2FA after successful login verification
             } else {
                 console.error('Login failed:', result.message);
                 displayError('Login failed. Please try again.');
@@ -57,8 +54,8 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const result = await verify2FA(token);
             if (result.message === '2FA verified') {
-                twoFAContainer.style.display = 'none';
-                adminPanel.style.display = 'block';
+                if (twoFAContainer) twoFAContainer.style.display = 'none';
+                if (adminPanel) adminPanel.style.display = 'block';
             } else {
                 displayError('2FA verification failed. Please try again.');
             }
@@ -99,7 +96,8 @@ async function login(username, password) {
     const response = await fetch(`${SERVER_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password }),
+        credentials: 'include' // This is important for maintaining session cookies
     });
     console.log('Login response status:', response.status);
     return response.json();
@@ -110,6 +108,7 @@ async function setup2FA() {
     const response = await fetch(`${SERVER_URL}/setup-2fa`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include' // This is important for maintaining session cookies
     });
     console.log('2FA setup response status:', response.status);
     return response.json();
@@ -120,7 +119,8 @@ async function verify2FA(token) {
     const response = await fetch(`${SERVER_URL}/verify-2fa`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token })
+        body: JSON.stringify({ token }),
+        credentials: 'include' // This is important for maintaining session cookies
     });
     console.log('2FA verification response status:', response.status);
     return response.json();
