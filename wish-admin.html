@@ -11,7 +11,7 @@
             margin: 0 auto;
             padding: 20px;
         }
-        form {
+        form, .container {
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -30,16 +30,19 @@
         button:hover {
             background-color: #45a049;
         }
-        #adminPanel {
+        #adminPanel, #twoFAContainer {
             display: none;
         }
         #qrCodeContainer {
-            margin-top: 20px;
             text-align: center;
         }
         #qrCodeContainer img {
             max-width: 100%;
             height: auto;
+        }
+        #errorMessage {
+            color: red;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -52,16 +55,16 @@
             <button type="submit">Login</button>
         </form>
     </div>
-    <div id="twoFAForm" style="display: none;">
+    <div id="twoFAContainer" class="container">
+        <div id="qrCodeContainer">
+            <h3>Scan this QR code with your 2FA app</h3>
+            <img id="qrCodeImage" src="" alt="2FA QR Code">
+            <p>After scanning, enter the code from your 2FA app below.</p>
+        </div>
         <form id="verify2FA">
             <input type="text" id="totpToken" placeholder="Enter 2FA Code" required>
             <button type="submit">Verify 2FA</button>
         </form>
-    </div>
-    <div id="qrCodeContainer" style="display: none;">
-        <h3>Scan this QR code with your 2FA app</h3>
-        <img id="qrCodeImage" src="" alt="2FA QR Code">
-        <p>After scanning, enter the code from your 2FA app above.</p>
     </div>
     <div id="adminPanel">
         <h2>Admin Panel</h2>
@@ -69,6 +72,7 @@
         <button id="exportCSVBtn">Export CSV</button>
         <div id="winnerDisplay"></div>
     </div>
+    <div id="errorMessage"></div>
     <script src="admin.js"></script>
 </body>
 </html>
