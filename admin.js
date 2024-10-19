@@ -1,55 +1,73 @@
-const SERVER_URL = 'https://wish-clow-production.up.railway.app'; // Adjust this if your server is running on a different port
+const SERVER_URL = 'https://wish-clow-production.up.railway.app';
 
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('login');
-    const twoFAForm = document.getElementById('verify2FA');
+    const twoFAContainer = document.getElementById('twoFAContainer');
+    const verify2FAForm = document.getElementById('verify2FA');
     const adminPanel = document.getElementById('adminPanel');
     const drawWinnerBtn = document.getElementById('drawWinnerBtn');
     const exportCSVBtn = document.getElementById('exportCSVBtn');
     const winnerDisplay = document.getElementById('winnerDisplay');
-    const qrCodeContainer = document.getElementById('qrCodeContainer');
+    const errorMessageElement = document.getElementById('errorMessage');
+
+    function displayError(message) {
+        errorMessageElement.textContent = message;
+    }
+
+    function clearError() {
+        errorMessageElement.textContent = '';
+    }
 
     loginForm.addEventListener('submit', async function(event) {
         event.preventDefault();
+        clearError();
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         try {
+            console.log('Attempting login...');
             const result = await login(username, password);
+            console.log('Login result:', result);
             if (result.message === 'Login successful, please enter 2FA code') {
                 document.getElementById('loginForm').style.display = 'none';
-                // Request 2FA setup and display QR code
+                console.log('Requesting 2FA setup...');
                 const setupResult = await setup2FA();
+                console.log('2FA setup result:', setupResult);
                 if (setupResult.qrCodeUrl) {
+                    console.log('QR Code URL received:', setupResult.qrCodeUrl);
                     document.getElementById('qrCodeImage').src = setupResult.qrCodeUrl;
-                    qrCodeContainer.style.display = 'block';
+                    twoFAContainer.style.display = 'block';
+                } else {
+                    console.error('No QR Code URL in setup result');
+                    displayError('Failed to get QR Code. Please try again.');
                 }
-                document.getElementById('twoFAForm').style.display = 'block';
             } else {
-                alert('Login failed. Please try again.');
+                console.error('Login failed:', result.message);
+                displayError('Login failed. Please try again.');
             }
         } catch (error) {
             console.error('Login error:', error);
-            alert('An error occurred during login. Please try again.');
+            displayError('An error occurred during login. Please try again.');
         }
     });
 
-    twoFAForm.addEventListener('submit', async function(event) {
+    verify2FAForm.addEventListener('submit', async function(event) {
         event.preventDefault();
+        clearError();
         const token = document.getElementById('totpToken').value;
         try {
             const result = await verify2FA(token);
             if (result.message === '2FA verified') {
-                document.getElementById('twoFAForm').style.display = 'none';
-                qrCodeContainer.style.display = 'none';
+                twoFAContainer.style.display = 'none';
                 adminPanel.style.display = 'block';
             } else {
-                alert('2FA verification failed. Please try again.');
+                displayError('2FA verification failed. Please try again.');
             }
         } catch (error) {
             console.error('2FA verification error:', error);
-            alert('An error occurred during 2FA verification. Please try again.');
+            displayError('An error occurred during 2FA verification. Please try again.');
         }
     });
+
 
 
     drawWinnerBtn.addEventListener('click', async function() {
@@ -77,28 +95,34 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function login(username, password) {
+    console.log('Sending login request to:', `${SERVER_URL}/login`);
     const response = await fetch(`${SERVER_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
     });
+    console.log('Login response status:', response.status);
     return response.json();
 }
 
 async function setup2FA() {
+    console.log('Sending 2FA setup request to:', `${SERVER_URL}/setup-2fa`);
     const response = await fetch(`${SERVER_URL}/setup-2fa`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
     });
+    console.log('2FA setup response status:', response.status);
     return response.json();
 }
 
 async function verify2FA(token) {
+    console.log('Sending 2FA verification request to:', `${SERVER_URL}/verify-2fa`);
     const response = await fetch(`${SERVER_URL}/verify-2fa`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token })
     });
+    console.log('2FA verification response status:', response.status);
     return response.json();
 }
 
