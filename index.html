@@ -115,13 +115,30 @@
         function handleSubmit() {
             const wishValue = document.getElementById('wishText').value;
             const emailValue = document.getElementById('emailText').value;
-            // Handle the form submission logic here
-            alert(`Form submitted!\nWish: ${wishValue}\nEmail: ${emailValue}`);
-
-            // Hide the sticky bar after submission
-            const stickyBar = document.querySelector('.sticky-bar');
-            stickyBar.style.display = 'none'; // Hide the sticky bar
+           
+    // Send data to the server
+    fetch('https://wish-clow-production.up.railway.app/add-entry', { // Replace with your server URL
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ wish: wishValue, email: emailValue }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
         }
+        return response.json();
+    })
+    .then(data => {
+        alert(data.message); // Show success message
+        // Optionally, hide the sticky bar or reset the form
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('There was a problem with your submission.');
+    });
+}
     </script>
 </head>
 <body>
