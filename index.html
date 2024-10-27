@@ -28,7 +28,7 @@
             padding: 10px;
             border: 0px solid rgb(255, 0, 0);
             border-radius: 15px;
-            width: 280px;
+            width: 40%;
             background-color: rgba(255, 255, 255, 0.1); /* Transparent background */
         }
         .input-field:focus {
@@ -132,6 +132,9 @@
     })
     .then(data => {
         alert(data.message); // Show success message
+         // Hide the sticky bar after successful submission
+         const stickyBar = document.querySelector('.sticky-bar');
+        stickyBar.style.display = 'none'; // Hide the sticky bar
         // Optionally, hide the sticky bar or reset the form
     })
     .catch(error => {
